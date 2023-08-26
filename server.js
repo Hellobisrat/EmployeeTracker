@@ -112,9 +112,8 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-  db.query("SELECT * FROM department", function (err, result) {
-    console.log(result)
-    inquirer.prompt([
+  inquirer
+    .prompt([
       {
         type: "input",
         name: "title",
@@ -132,8 +131,19 @@ const addRole = () => {
         message: "what is the salary?",
       },
     ])
-    );
-  });
+    .then((answer) => {
+       {
+        db.query(
+          `INSERT INTO role SET ?`,[answer],
+          function (err, results) {
+            console.log(`Added roles to the database`);
+            
+          }
+        );
+      }
+      console.table(role)
+    }
+    )
 };
 
 const addEmployee = () => {

@@ -116,8 +116,9 @@ const addRole = () => {
   db.query(sql, (error, response) => {
       if (error) throw error;
       let deptNamesArray = [];
-      response.forEach((department) => {deptNamesArray.push(department.department_name);});
+      response.forEach((department) => {deptNamesArray.push(department.name);});
       deptNamesArray.push('Create Department');
+      console.log(deptNamesArray)
       inquirer
         .prompt([
           {
@@ -142,13 +143,12 @@ const addRole = () => {
               name: 'newRole',
               type: 'input',
               message: 'What is the name of your new role?',
-              validate: validate.validateString
             },
             {
               name: 'salary',
               type: 'input',
               message: 'What is the salary of this new role?',
-              validate: validate.validateSalary
+              
             }
           ])
           .then((answer) => {
@@ -171,8 +171,10 @@ const addRole = () => {
             });
           });
       };
-    });
-  };
+  });
+};
+    
+  
 
 
 const addEmployee = () => {

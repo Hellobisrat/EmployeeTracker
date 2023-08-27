@@ -47,7 +47,7 @@ const promptUser = () => {
       if (choices === "add an employee") {
         addEmployee();
       }
-      if (choices === "update a employee role ") {
+      if (choices === "update a employee role") {
         updateEmployee();
       }
     });
@@ -107,6 +107,9 @@ const addDepartment = () => {
         [answer],
         function (err, results) {
           console.log(`Added ${answer} to the database`);
+          viewAllDepartments();
+          promptUser();
+
         }
       );
     });

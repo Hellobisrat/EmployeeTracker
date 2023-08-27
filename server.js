@@ -112,82 +112,79 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "title",
-        message: "what is the title?",
-      },
-      {
-        type: "list",
-        name: "department",
-        message: "Please select department:",
-        choices: ["Sales", "Engineering", "Finance", "Legal"],
-      },
-      {
-        type: "input",
-        name: "salary",
-        message: "what is the salary?",
-      },
-    ])
-    .then((answer) => {
-       {
-        db.query(
-          `INSERT INTO role SET ?`,[answer],
-          function (err, results) {
-            console.log(`Added roles to the database`);
-            
+  const sql = 'SELECT * FROM department'
+  db.query(sql, (error, response) => {
+      if (error) throw error;
+      let deptNamesArray = [];
+      response.forEach((department) => {deptNamesArray.push(department.department_name);});
+      deptNamesArray.push('Create Department');
+      inquirer
+        .prompt([
+          {
+            name: 'departmentName',
+            type: 'list',
+            message: 'Which department is this new role in?',
+            choices: deptNamesArray
           }
-        );
-      }
-      console.table(role)
-    }
-    )
-};
+        ])
+        .then((answer) => {
+          if (answer.departmentName === 'Create Department') {
+            this.addDepartment();
+          } else {
+            addRoleResume(answer);
+          }
+        });
+
+      const addRoleResume = (departmentData) => {
+        inquirer
+          .prompt([
+            {
+              name: 'newRole',
+              type: 'input',
+              message: 'What is the name of your new role?',
+              validate: validate.validateString
+            },
+            {
+              name: 'salary',
+              type: 'input',
+              message: 'What is the salary of this new role?',
+              validate: validate.validateSalary
+            }
+          ])
+          .then((answer) => {
+            let createdRole = answer.newRole;
+            let departmentId;
+
+            response.forEach((department) => {
+              if (departmentData.departmentName === department.department_name) {departmentId = department.id;}
+            });
+
+            let sql =   `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
+            let crit = [createdRole, answer.salary, departmentId];
+
+            db.query(sql, crit, (error) => {
+              if (error) throw error;
+              console.log(chalk.yellow.bold(`====================================================================================`));
+              console.log(chalk.greenBright(`Role successfully created!`));
+              console.log(chalk.yellow.bold(`====================================================================================`));
+              viewAllRoles();
+            });
+          });
+      };
+    });
+  };
+
 
 const addEmployee = () => {
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "first_name",
-      message: "what is the employee firstname?",
-    },
-    {
-      type: "input",
-      name: "Last_name",
-      message: "what is the employee lastname?",
-    },
-    {
-      type: "list",
-      name: "title",
-      message: "what is the employee role?",
-      choices: [
-        "Sales Lead",
-        "Salesperson",
-        "Lead Engineer",
-        "Software Engineer",
-        "Account Manager",
-        "Accountant",
-        "Legal Team Lead",
-        "Lawyer",
-      ],
-    },
-    {
-      type: "list",
-      name: "manager",
-      message: "what is the employee manager?",
-      choices: [
-        "None",
-        "John Doe",
-        "Mike Chan",
-        "Ashely Rodrigues",
-        "Kevin Tupik",
-        "Kunal Singh",
-        "Malia Brown",
-      ],
-    },
-  ]);
-};
+  db.query('SELECT * FROM department', function(err,response){
+    if(err){
+      console.error(err)
+    }
+    let deptNamesArray = [];
+    response.forEach((department)=>{deptNamesArray.push(department.department_name);});
+    deptNamesArray.push('Create Department')
+    console.log(deptNamesArray)
 
+  })
+}
 promptUser();
